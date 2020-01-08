@@ -1,13 +1,15 @@
 import sys, getopt
-    
-def main(argv):
-    opts, arg = getopt.getopt(argv[1:], "s:d")
-    print("arguments:")
-    for opt, arg in opts:
-        print("\t", opt, " -> ", arg)
 
-if __name__ == "__main__":
-    main(sys.argv)
+source_url = None
+source_user = None
+source_pass = None
+dest_url = None
+dest_user = None
+dest_pass = None
 
+opts, arg = getopt.getopt(sys.argv[1:], "s:d")
+print("arguments:")
+for opt, arg in opts:
+    print("\t", opt, " -> ", arg)
 
 
