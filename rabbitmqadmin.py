@@ -516,6 +516,10 @@ def maybe_utf8(s):
 
 class Management:
     def __init__(self, options, args):
+        # DN
+        #print("options", options)
+        #print("args", args)
+        # EOF DN
         self.options = options
         self.args = args
 

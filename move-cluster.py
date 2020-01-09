@@ -1,4 +1,6 @@
 import sys, getopt, subprocess
+from urllib.parse import urlparse
+from rabbitmqadmin import Management
 
 print("\nRabbitMQ Blue-Green Migration Script\n")
 
@@ -8,10 +10,11 @@ from_password = "admin"
 to_cluster = None
 to_user = "admin"
 to_password = "admin"
+ssl = False
 
 # Parse Command Line Arguments:
 opts, arg = getopt.getopt(sys.argv[1:], "", 
-    ["from-cluster=", "from-user=", "from-password=", "to-cluster=", "to-user=", "to-password="])
+    ["from-cluster=", "from-user=", "from-password=", "to-cluster=", "to-user=", "to-password=", "ssl="])
 
 print("received arguments:")
 for opt, arg in opts:
@@ -28,6 +31,8 @@ for opt, arg in opts:
         to_user = arg
     elif opt == "--to-password":
         to_password = arg
+    elif opt == "--ssl":
+        ssl = arg
     
 if from_cluster == None:
     raise Exception("Missing argument: --from-cluster")
@@ -41,9 +46,33 @@ print("Destination cluster (url, user, pass):", to_cluster, to_user, to_password
 
 # export definitions:
 defs_path = "rabbitmq.definitions.json"
-export_return_code = subprocess.call(
-    ['python', './rabbitmqadmin', '-H', from_cluster, '-u', from_user, '-p', from_password, 'export', defs_path])
-
+export_return_code = subprocess.call(['python', './rabbitmqadmin.py', '-H', from_cluster, '-u', from_user, '-p', from_password, 'export', defs_path])
 if export_return_code != 0:
     raise Exception('Failed to export definitions')
+
+class RabbitMQAdminOptions:
+    format = "table"
+    sort = sort_reverse = None
+    path_prefix = ""
+    request_timeout = 120
+
+    def __init__(self, cluster, user, pwd, ssl):
+        self.depth = 1
+        self.username = user
+        self.password = pwd
+
+        url = urlparse(cluster)
+        self.hostname = url.hostname or cluster
+        self.port = url.port or "15672"
+        self.ssl = ssl
+        #print("url:", self.hostname, self.port, self.ssl)
+
+opts = RabbitMQAdminOptions(from_cluster, from_user, from_password, ssl)
+mgmt = Management(opts, ['vhosts'])
+mgmt.invoke_list()
+#print(result)
+
+
+
+
 
