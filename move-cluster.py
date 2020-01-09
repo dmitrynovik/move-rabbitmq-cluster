@@ -51,10 +51,10 @@ if export_return_code != 0:
     raise Exception('Failed to export definitions')
 
 class RabbitMQAdminOptions:
-    format = "table"
+    format = "raw_json"
     sort = sort_reverse = None
     path_prefix = ""
-    request_timeout = 120
+    request_timeout = 60
 
     def __init__(self, cluster, user, pwd, ssl):
         self.depth = 1
